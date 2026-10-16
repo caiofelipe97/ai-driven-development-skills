@@ -1,5 +1,6 @@
 import {
   DomainError,
+  ForbiddenError,
   NotFoundError,
   UnauthorizedError,
   ValidationError,
@@ -37,6 +38,13 @@ describe("shared errors", () => {
 
     expect(error).toBeInstanceOf(DomainError);
     expect(error.statusCode).toBe(401);
+  });
+
+  test("deve criar ForbiddenError com status 403", () => {
+    const error = new ForbiddenError("Acesso negado");
+
+    expect(error).toBeInstanceOf(DomainError);
+    expect(error.statusCode).toBe(403);
   });
 
   test("deve criar ValidationException com lista completa de erros", () => {
