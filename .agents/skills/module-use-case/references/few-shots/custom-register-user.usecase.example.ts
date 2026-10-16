@@ -1,4 +1,4 @@
-import { StrongPasswordRule, UseCase, Validator } from "@poupig/shared";
+import { StrongPasswordRule, UseCase, Validator } from "@app/shared";
 import { User } from "../model";
 import { CryptoProvider, UserRepository } from "../provider";
 

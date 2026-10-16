@@ -1,4 +1,4 @@
-import { PageResult } from "@poupig/shared";
+import { PageResult } from "@app/shared";
 import { User, UserPageParams, UserRepository } from "../../src";
 
 export class FakeUserRepository implements UserRepository {

@@ -42,7 +42,7 @@ Nao depender de templates, scripts ou pastas externas para reconstruir o pacote.
 ## Restricoes
 
 - Nao copiar `dist`, `coverage`, `.turbo` ou `node_modules`.
-- Nao embutir `@poupig` ou qualquer outro scope fixo nos arquivos-base da skill.
+- Nao embutir scope fixo (como `@app` ou o namespace de qualquer cliente) nos arquivos-base da skill.
 - Nao pular a deteccao dinamica de scope.
 - Nao usar `file:` ou links locais ao normalizar a dependencia do pacote shared.
 - Nao recriar os arquivos do pacote em tempo de execucao por geracao ad hoc; sempre copiar a base fiel de `assets/shared-template/`.

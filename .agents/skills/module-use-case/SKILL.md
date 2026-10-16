@@ -142,7 +142,7 @@ Exemplo:
 
 O arquivo deve seguir o padrao do projeto:
 
-1. importar `UseCase` de `@<scope>/shared` (scope lido de `modules/<modulo>/package.json`; os few-shots usam `@poupig` apenas como exemplo);
+1. importar `UseCase` de `@<scope>/shared` (scope lido de `modules/<modulo>/package.json`; os few-shots usam `@app` apenas como exemplo);
 2. declarar `export interface <CaseName>In`;
 3. declarar `export interface <CaseName>Out` apenas quando houver retorno relevante;
 4. declarar `export class <CaseName> implements UseCase<<CaseName>In, <OutOuVoid>>`;

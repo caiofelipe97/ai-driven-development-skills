@@ -5,7 +5,7 @@ Padrao observado no projeto:
 - O contrato do repositorio fica em `modules/<modulo>/src/<aggregate>/provider/<aggregate>.repository.ts`
 - O arquivo `provider/index.ts` reexporta o contrato
 - O agregado expoe `model`, `provider` e `usecase` por meio de `src/<aggregate>/index.ts`
-- O repositorio de dominio usa import de `@poupig/shared`
+- O repositorio de dominio usa import de `@app/shared`
 - A entidade do agregado vem de `../model`
 - O teste usa fake em `modules/<modulo>/test/mock/fake-<aggregate>.repository.ts`
 - A fake importa tipos do modulo via `../../src` quando isso simplifica o consumo
@@ -13,7 +13,7 @@ Padrao observado no projeto:
 Padrao CRUD minimo observado em `auth`:
 
 ```ts
-import { CrudRepository } from "@poupig/shared";
+import { CrudRepository } from "@app/shared";
 import { User } from "../model";
 
 export interface UserPageParams {

@@ -1,4 +1,4 @@
-import { UseCase } from "@poupig/shared";
+import { UseCase } from "@app/shared";
 import { User } from "../model";
 import { UserRepository } from "../provider";
 

@@ -1,4 +1,4 @@
-import { ValidationException } from "@poupig/shared";
+import { ValidationException } from "@app/shared";
 import { RegisterUser, User } from "../../../src";
 import { FakeCryptoProvider, FakeUserRepository } from "../../mock";
 

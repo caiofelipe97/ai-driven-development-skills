@@ -192,7 +192,7 @@ Regras:
 
 ## Convencoes de import e export
 
-- Reaproveite o namespace compartilhado exposto pelo projeto, derivando o scope de `modules/<modulo>/package.json` (ex.: `@app/auth` -> `@app/shared`). Os few-shots usam `@poupig` apenas como exemplo.
+- Reaproveite o namespace compartilhado exposto pelo projeto, derivando o scope de `modules/<modulo>/package.json` (ex.: `@app/auth` -> `@app/shared`). Os few-shots usam `@app` apenas como exemplo.
 - No repositorio de dominio, prefira importar a entidade a partir de `../model`.
 - Na fake, prefira importar contrato, entidade e tipos do proprio modulo a partir de `../../src` quando essa convencao local existir.
 - Atualize `provider/index.ts` com `export * from "./<aggregate>.repository";`

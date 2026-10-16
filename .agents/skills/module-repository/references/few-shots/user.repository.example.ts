@@ -1,4 +1,4 @@
-import { CrudRepository } from "@poupig/shared";
+import { CrudRepository } from "@app/shared";
 import { User } from "../model";
 
 export interface UserPageParams {
