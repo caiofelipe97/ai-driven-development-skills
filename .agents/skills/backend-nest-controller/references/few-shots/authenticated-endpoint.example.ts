@@ -7,10 +7,10 @@ import {
 import {
   ListMyTransactions,
   type ListMyTransactionsIn,
-} from '@poupig/transactions';
-import { JwtAuthGuard } from '../../../apps/backend/src/shared/auth/jwt-auth.guard';
-import { CurrentUser } from '../../../apps/backend/src/shared/decorators/current-user.decorator';
-import { PrismaTransactionRepository } from '../../../apps/backend/src/modules/transactions/transaction.prisma';
+} from '@app/transactions';
+import { JwtAuthGuard } from '../../shared/auth/jwt-auth.guard';
+import { CurrentUser } from '../../shared/decorators/current-user.decorator';
+import { PrismaTransactionRepository } from './transaction.prisma';
 
 type ListMyTransactionsHttpQuery = {
   page?: number;

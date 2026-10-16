@@ -1,6 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { CreateTransaction, type CreateTransactionIn } from '@poupig/transactions';
-import { PrismaTransactionRepository } from '../../../apps/backend/src/modules/transactions/transaction.prisma';
+import { CreateTransaction, type CreateTransactionIn } from '@app/transactions';
+import { PrismaTransactionRepository } from './transaction.prisma';
 
 @Controller('transactions')
 export class TransactionsController {
