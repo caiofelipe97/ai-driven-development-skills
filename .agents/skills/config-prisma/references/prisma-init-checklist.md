@@ -28,8 +28,9 @@ Padronizar bootstrap do Prisma no backend NestJS com:
 node .agents/skills/config-prisma/scripts/init-prisma-backend.js --dry-run
 node .agents/skills/config-prisma/scripts/init-prisma-backend.js --apply --install
 npm --workspace apps/backend run db:start
-npm --workspace apps/backend run prisma:generate
 ```
+
+O `--install` já executa `prisma generate` ao final. Para regerar manualmente: `npm --workspace apps/backend run prisma:generate`.
 
 ## Escaffold de módulos Prisma
 
@@ -63,6 +64,7 @@ node .agents/skills/config-prisma/scripts/init-prisma-backend.js --apply --modul
 - `--apply`: aplica alterações em disco
 - `--dry-run`: simula alterações
 - `--install`: roda `npm install --workspace <workspace-backend>` usando o nome em `apps/backend/package.json` (fallback `apps/backend`)
+- `--generate`: roda `npx prisma generate` no `apps/backend` (implícito em `--install`)
 - `--start-db`: roda `docker compose up -d postgres` no `apps/backend`
 - `--module <nome>`: cria arquivo Prisma por módulo
 - `--prisma-version <semver>`: força versão de Prisma; sem esta flag, a skill preserva versão Prisma já existente no backend (fallback `7.4.2`)

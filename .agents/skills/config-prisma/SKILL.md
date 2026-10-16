@@ -15,17 +15,18 @@ O contrato gerado de banco deve ficar compatível com a versão atual do projeto
 1. Confirmar que o workspace contém `apps/backend/package.json`.
 2. Executar o script da skill:
    - `node .agents/skills/config-prisma/scripts/init-prisma-backend.js --dry-run`
-   - `node .agents/skills/config-prisma/scripts/init-prisma-backend.js --apply --install`
+   - `node .agents/skills/config-prisma/scripts/init-prisma-backend.js --apply --install` (instala dependências e já roda `prisma generate`)
 3. Incluir arquivos Prisma por módulo (repetível):
    - `node .agents/skills/config-prisma/scripts/init-prisma-backend.js --apply --module auth --module product`
 4. Subir banco com Docker Compose do backend:
    - `npm --workspace apps/backend run db:start`
-5. Validar Prisma:
+5. Validar Prisma (o `--install` já gera o client; para regerar sem instalar, use `--apply --generate` ou):
    - `npm --workspace apps/backend run prisma:generate`
 
 ## O que o script garante
 
 - Dependências Prisma no `apps/backend/package.json` (`prisma`, `@prisma/client`, `@prisma/adapter-pg`, `tsx`) com preservação da versão já existente quando o backend já está configurado (sem upgrade forçado por padrão).
+- Geração do Prisma Client (`npx prisma generate` em `apps/backend`) automaticamente após `--install`, ou isoladamente com `--generate`.
 - Scripts npm de banco/Prisma (`db:start`, `db:stop`, `db:logs`, `prisma:generate`, `prisma:migrate:*`, `prisma:seed`, `prisma:studio`).
 - Remoção de script legado `prisma:cid` quando presente.
 - `apps/backend/prisma.config.ts` com `seed: 'npx tsx prisma/seed/main.ts'`.

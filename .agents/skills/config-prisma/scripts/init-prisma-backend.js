@@ -134,6 +134,7 @@ Options:
   --dry-run                    Simulate changes without writing
   --install                    Run npm install for backend workspace after file changes
   --start-db                   Run docker compose up -d postgres in apps/backend
+  --generate                   Run prisma generate in apps/backend (implied by --install)
   --module <name>              Create prisma/models/<name>.model.prisma (repeatable)
   --prisma-version <semver>    Prisma version for prisma/@prisma/client/@prisma/adapter-pg (default: detect from package.json, fallback ${DEFAULT_PRISMA_VERSION})
   --help                       Show this help
@@ -146,6 +147,7 @@ function parseArgs(argv) {
     dryRun: false,
     install: false,
     startDb: false,
+    generate: false,
     modules: [],
     prismaVersion: '',
     customPrismaVersion: false,
@@ -172,6 +174,11 @@ function parseArgs(argv) {
 
     if (arg === '--start-db') {
       args.startDb = true;
+      continue;
+    }
+
+    if (arg === '--generate') {
+      args.generate = true;
       continue;
     }
 
@@ -855,6 +862,10 @@ async function runInstall(rootDir, backendWorkspace, ops) {
   await ops.runCommand('npm', ['install', '--workspace', backendWorkspace], rootDir);
 }
 
+async function runPrismaGenerate(backendDir, ops) {
+  await ops.runCommand('npx', ['prisma', 'generate'], backendDir);
+}
+
 async function runStartDb(backendDir, ops) {
   await ops.runCommand('docker', ['compose', 'up', '-d', 'postgres'], backendDir);
 }
@@ -979,6 +990,17 @@ async function main() {
         console.log('\nInstalling backend dependencies...');
         await runInstall(rootDir, backendWorkspace, ops);
         console.log('Backend dependencies installed successfully.');
+      }
+    }
+
+    if (args.install || args.generate) {
+      if (args.dryRun) {
+        console.log('\nDry-run: skipped prisma generate.');
+        logger.step('Prisma generate ignorado em dry-run.');
+      } else {
+        console.log('\nGenerating Prisma Client...');
+        await runPrismaGenerate(backendDir, ops);
+        console.log('Prisma Client generated successfully.');
       }
     }
 
