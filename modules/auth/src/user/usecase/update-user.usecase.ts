@@ -1,4 +1,4 @@
-import { UseCase } from "@app/shared";
+import { NotFoundError, UseCase } from "@app/shared";
 import { User } from "../model";
 import { UserRepository } from "../provider";
 
@@ -14,6 +14,14 @@ export class UpdateUser
   ) {}
 
   async execute(input: UpdateUserIn): Promise<User> {
+    input.entity.validate();
+
+    const existingUser = await this.userRepository.findById(input.entity.id);
+
+    if (!existingUser) {
+      throw new NotFoundError("user.not.found");
+    }
+
     return this.userRepository.update(input.entity);
   }
 }

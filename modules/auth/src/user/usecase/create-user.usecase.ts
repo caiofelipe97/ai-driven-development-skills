@@ -14,6 +14,8 @@ export class CreateUser
   ) {}
 
   async execute(input: CreateUserIn): Promise<User> {
+    input.entity.validate();
+
     return this.userRepository.create(input.entity);
   }
 }
