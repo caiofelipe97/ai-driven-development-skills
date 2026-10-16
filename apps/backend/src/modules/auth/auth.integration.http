@@ -1,0 +1,62 @@
+@baseUrl = http://localhost:4000
+@scenarioVersion = {{$timestamp}}
+
+# Token JWT do usuario autenticado.
+# O fluxo de register + login (passo 15, spec-backend-auth-basic) vai
+# preencher esta variavel a partir da resposta do login.
+@token =
+
+### Rota publica de health-check - esperado 200
+GET {{baseUrl}}/
+
+### Rota protegida sem token - esperado 401 auth.token.missing
+GET {{baseUrl}}/auth/me
+
+### Rota protegida com token invalido - esperado 401 auth.token.invalid
+GET {{baseUrl}}/auth/me
+Authorization: Bearer token-invalido
+
+### Usuario autenticado - esperado 200 sem o campo password
+# @name me
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+@userId = {{me.response.body.id}}
+
+### Listar usuarios paginados - esperado 200 com items, page, perPage e total
+GET {{baseUrl}}/auth/users?page=1&perPage=10
+Authorization: Bearer {{token}}
+
+### Listar usuarios com paginacao invalida - esperado 400
+GET {{baseUrl}}/auth/users?page=abc
+Authorization: Bearer {{token}}
+
+### Buscar usuario por id - esperado 200
+GET {{baseUrl}}/auth/users/{{userId}}
+Authorization: Bearer {{token}}
+
+### Buscar usuario inexistente - esperado 404 user.not.found
+GET {{baseUrl}}/auth/users/00000000-0000-4000-8000-000000000000
+Authorization: Bearer {{token}}
+
+### Atualizar nome do usuario - esperado 200 com o nome novo
+PATCH {{baseUrl}}/auth/users/{{userId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Usuario Atualizado"
+}
+
+### Atualizar com email invalido - esperado 422 user.email.invalid.email
+PATCH {{baseUrl}}/auth/users/{{userId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "email": "email-invalido-{{scenarioVersion}}"
+}
+
+### Excluir usuario inexistente - esperado 404
+DELETE {{baseUrl}}/auth/users/00000000-0000-4000-8000-000000000000
+Authorization: Bearer {{token}}
