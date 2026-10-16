@@ -104,33 +104,26 @@ export class AuthController {
 
   @Patch('/users/:id')
   async update(
+    @CurrentUser('id') requesterId: string,
     @Param('id') id: string,
     @Body() body: UpdateUserHttpBody,
   ): Promise<UserResponse> {
     const { name, email } = body ?? {};
-    const user = await new FindUserById(this.userRepository).execute({ id });
-
-    if (!user) {
-      throw new NotFoundError('user.not.found');
-    }
-
     const useCase = new UpdateUser(this.userRepository);
-    const updated = await useCase.execute({
-      entity: user.clone({
-        ...(name !== undefined && { name }),
-        ...(email !== undefined && { email }),
-      }),
-    });
+    const updated = await useCase.execute({ requesterId, id, name, email });
 
     return toUserResponse(updated);
   }
 
   @Delete('/users/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async delete(@Param('id') id: string): Promise<void> {
+  async delete(
+    @CurrentUser('id') requesterId: string,
+    @Param('id') id: string,
+  ): Promise<void> {
     const useCase = new DeleteUser(this.userRepository);
 
-    await useCase.execute({ id });
+    await useCase.execute({ requesterId, id });
   }
 
   private async findUserOrFail(id: string): Promise<UserResponse> {

@@ -1,9 +1,13 @@
-import { NotFoundError, UseCase } from "@app/shared";
+import { ForbiddenError, NotFoundError, UseCase } from "@app/shared";
 import { User } from "../model";
 import { UserRepository } from "../provider";
+import { normalizeEmail } from "./normalize-email";
 
 export interface UpdateUserIn {
-  entity: User;
+  requesterId: string;
+  id: string;
+  name?: string;
+  email?: string;
 }
 
 export class UpdateUser
@@ -14,14 +18,23 @@ export class UpdateUser
   ) {}
 
   async execute(input: UpdateUserIn): Promise<User> {
-    input.entity.validate();
+    if (input.requesterId !== input.id) {
+      throw new ForbiddenError("user.forbidden");
+    }
 
-    const existingUser = await this.userRepository.findById(input.entity.id);
+    const user = await this.userRepository.findById(input.id);
 
-    if (!existingUser) {
+    if (!user) {
       throw new NotFoundError("user.not.found");
     }
 
-    return this.userRepository.update(input.entity);
+    const updated = user.clone({
+      ...(input.name !== undefined && { name: input.name }),
+      ...(input.email !== undefined && { email: normalizeEmail(input.email) }),
+    });
+
+    updated.validate();
+
+    return this.userRepository.update(updated);
   }
 }

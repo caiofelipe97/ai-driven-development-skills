@@ -90,13 +90,14 @@ Todas as rotas exigem `Authorization: Bearer <token>`, exceto as marcadas como p
 | GET | `/auth/me` | autenticada | usuário logado |
 | GET | `/auth/users?page&perPage` | autenticada | lista paginada |
 | GET | `/auth/users/:id` | autenticada | busca por id |
-| PATCH | `/auth/users/:id` | autenticada | atualiza `name` e/ou `email` |
-| DELETE | `/auth/users/:id` | autenticada | remove → `204` |
+| PATCH | `/auth/users/:id` | próprio usuário | atualiza `name` e/ou `email` (outro id → `403`) |
+| DELETE | `/auth/users/:id` | próprio usuário | remove → `204` (outro id → `403`) |
 
 Regras principais:
 
 - **Senha:** obrigatória, forte (8+ caracteres com maiúscula, minúscula, número e símbolo) e fora da lista de senhas comuns; é armazenada apenas como hash bcrypt.
-- **E-mail:** normalizado (trim + minúsculas) e único; um e-mail duplicado retorna `409`.
+- **E-mail:** normalizado (trim + minúsculas) no cadastro, no login e na edição, e único; um e-mail duplicado retorna `409`.
+- **Permissão:** um usuário só pode editar ou excluir a própria conta. A regra fica nos casos de uso `UpdateUser` e `DeleteUser`, que lançam `ForbiddenError` (`403 user.forbidden`) para qualquer outro id, sem revelar se ele existe.
 - **Login:** retorna o mesmo `401 auth.invalid.credentials` para e-mail inexistente, senha errada ou usuário excluído, sem revelar qual foi o caso.
 - **Respostas:** nunca incluem o hash da senha.
 
@@ -137,7 +138,7 @@ Ordem sugerida pelo curso (`prompts/00-resumo.md`) e o que cada skill produziu:
 | 14 | `backend-nest-controller` | rotas `/auth/me` e `/auth/users` + arquivo `.http` |
 | 15 | `spec-backend-auth-basic` | `RegisterUser`, `LoginUser` e as rotas `register` e `login` |
 
-Testes ao final: **59** no domínio `auth` (100% de cobertura nos casos de uso), **27** no backend e **96** no shared. O fluxo completo também foi validado por HTTP contra o Postgres.
+Testes ao final: **62** no domínio `auth` (100% de cobertura nos casos de uso), **27** no backend e **97** no shared. O fluxo completo também foi validado por HTTP contra o Postgres.
 
 ## Correções feitas nas skills
 
@@ -155,6 +156,6 @@ Ao executar as skills em um projeto novo, alguns problemas apareceram. Eles fora
 
 ## Fora do escopo / próximos passos
 
-- **Autorização:** hoje qualquer usuário autenticado pode editar ou excluir qualquer outro; falta limitar `PATCH`/`DELETE` ao próprio usuário ou a um perfil admin.
+- **Perfis de acesso:** `PATCH`/`DELETE` já são restritos ao próprio usuário; um perfil admin que possa gerenciar outras contas ainda não existe.
 - **Soft delete × e-mail único:** um usuário com `deletedAt` continua ocupando o e-mail; a solução seria um índice único parcial (`WHERE "deletedAt" IS NULL`).
 - **Não incluído nesta versão:** refresh token, recuperação de senha, confirmação de e-mail e as telas de autenticação no frontend.

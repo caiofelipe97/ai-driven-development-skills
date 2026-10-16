@@ -8,6 +8,7 @@ import {
 } from "@app/shared";
 import { User } from "../model";
 import { CryptoProvider, UserRepository } from "../provider";
+import { normalizeEmail } from "./normalize-email";
 
 export interface RegisterUserIn {
   name: string;
@@ -58,8 +59,4 @@ export class RegisterUser
 
     return { user: await this.userRepository.create(user) };
   }
-}
-
-function normalizeEmail(email: string): string {
-  return typeof email === "string" ? email.trim().toLowerCase() : "";
 }

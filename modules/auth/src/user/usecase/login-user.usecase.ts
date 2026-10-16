@@ -1,6 +1,7 @@
 import { UnauthorizedError, UseCase } from "@app/shared";
 import { User } from "../model";
 import { CryptoProvider, TokenProvider, UserRepository } from "../provider";
+import { normalizeEmail } from "./normalize-email";
 
 export interface LoginUserIn {
   email: string;
@@ -20,8 +21,7 @@ export class LoginUser implements UseCase<LoginUserIn, LoginUserOut> {
   ) {}
 
   async execute(input: LoginUserIn): Promise<LoginUserOut> {
-    const email =
-      typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
+    const email = normalizeEmail(input.email);
     const user = email ? await this.userRepository.findByEmail(email) : null;
 
     const isValid =
