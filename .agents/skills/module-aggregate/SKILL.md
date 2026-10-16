@@ -50,6 +50,8 @@ node .agents/skills/module-aggregate/scripts/create-aggregate.js --module auth -
 - Entidade base com `Entity` e `EntityState`
 - Contrato inicial de repositorio com `CrudRepository`
 - Arquivos `index.ts` necessarios para exportar o agregado
+- Imports do pacote shared com o scope detectado em `modules/<modulo>/package.json` (ex.: `@app/auth` -> `@app/shared`), sem namespace fixo
+- Dependencia `"@<scope>/shared": "*"` em `modules/<modulo>/package.json` quando ausente (rodar `npm install` na raiz em seguida)
 - Casos de uso minimos conforme o modo solicitado
 
 ## Modos de usecase
@@ -91,5 +93,5 @@ Cria apenas um caso de uso minimo e generico para demonstrar a estrutura:
 - Nao executar quando o modulo informado nao existir.
 - Nao executar quando o agregado ja existir.
 - Nao inferir o modo `crud` ou `example` quando ele nao vier no pedido.
-- Nao editar arquivos fora de `modules/<modulo>/src/**`, exceto a propria skill.
+- Nao editar arquivos fora de `modules/<modulo>/src/**`, exceto `modules/<modulo>/package.json` (apenas para a dependencia do shared) e a propria skill.
 - Nao adicionar documentacao extra fora dos arquivos da skill.

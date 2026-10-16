@@ -1,4 +1,4 @@
-import { CrudRepository } from "@poupig/shared";
+import { CrudRepository } from "__SHARED_PACKAGE__";
 import { __AGGREGATE_CLASS_NAME__ } from "../model";
 
 export interface __AGGREGATE_CLASS_NAME__PageParams {

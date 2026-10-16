@@ -1,4 +1,4 @@
-import { UseCase } from "@poupig/shared";
+import { UseCase } from "__SHARED_PACKAGE__";
 import { __AGGREGATE_CLASS_NAME__ } from "../model";
 import { __AGGREGATE_REPOSITORY_NAME__ } from "../provider";
 

@@ -122,7 +122,10 @@ function main() {
     fail(`O agregado ${aggregateName} ja existe em modules/${moduleName}/src/${aggregateName}.`);
   }
 
+  const sharedPackageName = resolveSharedPackageName(moduleDir, moduleName);
+
   const replacements = {
+    "__SHARED_PACKAGE__": sharedPackageName,
     "__AGGREGATE_NAME__": aggregateName,
     "__AGGREGATE_CLASS_NAME__": toPascalCase(aggregateName),
     "__AGGREGATE_REPOSITORY_NAME__": `${toPascalCase(aggregateName)}Repository`,
@@ -165,6 +168,7 @@ function main() {
   );
 
   updateModuleIndex(moduleIndexPath, aggregateName);
+  ensureSharedDependency(path.join(moduleDir, "package.json"), sharedPackageName);
 
   log(`Agregado ${aggregateName} criado com sucesso.`);
 }
@@ -223,6 +227,32 @@ function applyReplacements(template, replacements) {
   return Object.entries(replacements).reduce((content, [key, value]) => {
     return content.split(key).join(String(value));
   }, template);
+}
+
+function resolveSharedPackageName(moduleDir, moduleName) {
+  const packageJsonPath = path.join(moduleDir, "package.json");
+  assertFileExists(packageJsonPath, `O arquivo modules/${moduleName}/package.json nao foi encontrado.`);
+
+  const { name } = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+  const match = /^(@[a-z0-9][a-z0-9._-]*)\//.exec(name || "");
+
+  if (!match) {
+    fail(`Nao foi possivel detectar o scope do modulo a partir do nome "${name}" em modules/${moduleName}/package.json.`);
+  }
+
+  return `${match[1]}/shared`;
+}
+
+function ensureSharedDependency(packageJsonPath, sharedPackageName) {
+  const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+
+  if (pkg.dependencies && pkg.dependencies[sharedPackageName]) {
+    return;
+  }
+
+  pkg.dependencies = { ...(pkg.dependencies || {}), [sharedPackageName]: "*" };
+  fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`);
+  log(`Dependencia ${sharedPackageName} adicionada em ${path.relative(process.cwd(), packageJsonPath)}. Rode npm install na raiz.`);
 }
 
 function updateModuleIndex(moduleIndexPath, aggregateName) {
