@@ -18,7 +18,15 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "dev": "nest start --watch"
+    "dev": "nest start --watch",
+    "db:start": "docker compose up -d postgres",
+    "db:stop": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
+    "prisma:generate": "npx prisma generate",
+    "prisma:migrate:dev": "npx prisma migrate dev",
+    "prisma:migrate:deploy": "npx prisma migrate deploy",
+    "prisma:seed": "npx prisma db seed",
+    "prisma:studio": "npx prisma studio"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -27,6 +35,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "@nestjs/config": "^4.0.3",
+    "@prisma/client": "^7.4.2",
+    "@prisma/adapter-pg": "^7.4.2",
     "pg": "^8.16.3",
     "dotenv": "^16.0.3"
   },
@@ -53,7 +63,9 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.20.0",
+    "prisma": "^7.4.2",
+    "tsx": "^4.21.0"
   },
   "jest": {
     "moduleFileExtensions": [
