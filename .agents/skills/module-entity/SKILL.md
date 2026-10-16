@@ -292,7 +292,7 @@ npm run test --workspace <workspace-name-do-shared> -- --runTestsByPath test/val
 Quando fizer sentido, rodar tambem a suite completa do modulo:
 
 ```bash
-npm run test --workspace @poupig/<modulo>
+npm run test --workspace <workspace-name-lido-do-package-json>
 ```
 
 Objetivo obrigatorio:
