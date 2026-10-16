@@ -116,7 +116,7 @@ Preserve exports existentes. Nunca apague export valido para simplificar.
 ## Regras da interface
 
 - O contrato deve seguir o padrao `export interface <EntityName>Repository`.
-- Reaproveite contratos de `@poupig/shared` sempre que houver encaixe claro.
+- Reaproveite contratos de `@<scope>/shared` (scope lido de `modules/<modulo>/package.json`) sempre que houver encaixe claro.
 - Evite reescrever assinaturas que ja existem em `CreateRepository`, `UpdateRepository`, `DeleteRepository`, `FindByIdRepository`, `FindPageRepository` ou `CrudRepository`.
 - Use os tipos reais da entidade e dos parametros relacionados ao agregado quando existirem.
 - Se tipos auxiliares ainda nao existirem e nao der para inferir com seguranca, crie placeholders tipados, pequenos e didaticos no proprio arquivo do repositorio.
@@ -192,7 +192,7 @@ Regras:
 
 ## Convencoes de import e export
 
-- Reaproveite o namespace compartilhado exposto pelo projeto, por exemplo `@poupig/shared`.
+- Reaproveite o namespace compartilhado exposto pelo projeto, derivando o scope de `modules/<modulo>/package.json` (ex.: `@app/auth` -> `@app/shared`). Os few-shots usam `@poupig` apenas como exemplo.
 - No repositorio de dominio, prefira importar a entidade a partir de `../model`.
 - Na fake, prefira importar contrato, entidade e tipos do proprio modulo a partir de `../../src` quando essa convencao local existir.
 - Atualize `provider/index.ts` com `export * from "./<aggregate>.repository";`
