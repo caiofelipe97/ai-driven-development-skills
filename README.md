@@ -1,159 +1,160 @@
-# Turborepo starter
+# AI Driven Development — projeto do zero com skills
 
-This Turborepo starter is maintained by the Turborepo core team.
+Exercício do curso **AI Driven Development** (módulo *Agents, Skills & Engenharia de Contexto*): um monorepo fullstack criado do zero executando, em ordem, as skills de `.agents/skills`, sem escrever a estrutura manualmente.
 
-## Using this example
+O resultado é uma base de **autenticação no backend** (cadastro, login com JWT e rotas protegidas) organizada em domínio, persistência e HTTP. Cada skill executada virou um commit, e cada correção feita em uma skill virou um commit `fix(<skill>)` separado, então o histórico do git conta o passo a passo.
 
-Run the following command:
+## Stack
 
-```sh
-npx create-turbo@latest
+- **Monorepo:** Turborepo + npm workspaces, namespace `@app`
+- **Frontend:** Next.js (`apps/frontend`, porta 3000)
+- **Backend:** NestJS 11 (`apps/backend`, porta 4000)
+- **Banco:** PostgreSQL 16 via Docker Compose + Prisma 7 (adapter `pg`)
+- **Auth:** bcrypt (hash de senha) + jsonwebtoken (JWT)
+- **Testes:** Jest em todos os workspaces
+
+## Estrutura
+
+```text
+apps/
+  backend/            NestJS: Prisma, filtro de erros, guard JWT, controllers
+  frontend/           Next.js (estrutura base do módulo auth)
+modules/
+  auth/               domínio de autenticação (@app/auth)
+    src/user/
+      model/          entidade User (validação lazy)
+      provider/       contratos: UserRepository, CryptoProvider, TokenProvider
+      usecase/        CRUD + RegisterUser + LoginUser
+    test/             testes unitários + fakes em memória (test/mock)
+packages/
+  shared/             base compartilhada (@app/shared): Entity, erros, UseCase,
+                      contratos de repositório e ~60 regras de validação
+.agents/skills/       skills do curso (com as correções feitas no exercício)
 ```
 
-## What's inside?
+O domínio (`modules/auth`) não conhece Nest nem Prisma. O backend implementa os contratos do domínio (`PrismaUserRepository`, `BcryptCryptoProvider`, `JwtTokenProvider`) e os entrega aos casos de uso.
 
-This Turborepo includes the following packages/apps:
+## Como rodar
 
-### Apps and Packages
+Pré-requisitos: Node.js 22.18+ (funciona em 22.15 com avisos de engine) e Docker.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `@next/eslint-plugin-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+npm install
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-npm exec turbo build
-npm exec turbo build
+```bash
+cp apps/backend/.env.example apps/backend/.env
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Edite `apps/backend/.env` e defina um `JWT_SECRET` longo e aleatório (por exemplo, `openssl rand -hex 32`). Sem ele, o backend não sobe. Faça o mesmo para o frontend: `cp apps/frontend/.env.example apps/frontend/.env`.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```bash
+npm --workspace apps/backend run db:start
 ```
 
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-npm exec turbo build --filter=docs
-npm exec turbo build --filter=docs
+```bash
+npm --workspace apps/backend run prisma:migrate:deploy
 ```
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+npm run dev
 ```
 
-Without global `turbo`, use your package manager:
+Outros comandos úteis:
 
-```sh
-cd my-turborepo
-npx turbo dev
-npm exec turbo dev
-npm exec turbo dev
+```bash
+npm run build
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
+```bash
+npm run test --workspace @app/auth
 ```
 
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-npm exec turbo dev --filter=web
-npm exec turbo dev --filter=web
+```bash
+npm run test --workspace @app/backend
 ```
 
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+```bash
+npm run test --workspace @app/shared
 ```
 
-Without global `turbo`, use your package manager:
+## API
 
-```sh
-cd my-turborepo
-npx turbo login
-npm exec turbo login
-npm exec turbo login
+Todas as rotas exigem `Authorization: Bearer <token>`, exceto as marcadas como públicas.
+
+| Método | Rota | Acesso | Descrição |
+|---|---|---|---|
+| GET | `/` | pública | health-check |
+| POST | `/auth/register` | pública | cadastro → `201` com o usuário (sem senha) |
+| POST | `/auth/login` | pública | login → `200 { accessToken, user }` |
+| GET | `/auth/me` | autenticada | usuário logado |
+| GET | `/auth/users?page&perPage` | autenticada | lista paginada |
+| GET | `/auth/users/:id` | autenticada | busca por id |
+| PATCH | `/auth/users/:id` | autenticada | atualiza `name` e/ou `email` |
+| DELETE | `/auth/users/:id` | autenticada | remove → `204` |
+
+Regras principais:
+
+- **Senha:** obrigatória, forte (8+ caracteres com maiúscula, minúscula, número e símbolo) e fora da lista de senhas comuns; é armazenada apenas como hash bcrypt.
+- **E-mail:** normalizado (trim + minúsculas) e único; um e-mail duplicado retorna `409`.
+- **Login:** retorna o mesmo `401 auth.invalid.credentials` para e-mail inexistente, senha errada ou usuário excluído, sem revelar qual foi o caso.
+- **Respostas:** nunca incluem o hash da senha.
+
+Os erros seguem um formato único, aplicado pelo filtro global:
+
+```json
+{
+  "statusCode": 422,
+  "error": "UNPROCESSABLE_ENTITY",
+  "message": "Validation failed",
+  "details": [{ "code": "user.email.invalid.email" }],
+  "path": "/auth/register",
+  "timestamp": "2026-10-16T00:58:27.469Z"
+}
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+O arquivo [`apps/backend/src/modules/auth/auth.integration.http`](apps/backend/src/modules/auth/auth.integration.http) traz todos os cenários no formato do plugin **Rest Client** do VS Code, executáveis de cima para baixo: registro → login (o token é capturado da resposta) → rotas protegidas.
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## Trilha das skills
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Ordem sugerida pelo curso (`prompts/00-resumo.md`) e o que cada skill produziu:
 
-```sh
-turbo link
-```
+| # | Skill | Resultado |
+|---|---|---|
+| 1 | `config-project-fullstack` | monorepo Turbo com Next.js e NestJS, CORS e `@nestjs/config` |
+| 2 | `config-prisma` | Prisma 7, Postgres no Docker, `DbModule` e `PrismaService` |
+| 3 | `config-package-shared` | pacote `@app/shared` (96 testes) |
+| 4 | `config-new-module` | módulo `auth` no domínio, no backend e no frontend |
+| 5 | `module-aggregate` | agregado `user` com a base CRUD |
+| 6 | `module-entity` | entidade `User` (`name`, `email`, `password`) com 100% de cobertura |
+| 7 | `shared-validation-rule` | não foi necessária: todas as regras já existiam no shared |
+| 8 | `module-repository` | `UserRepository` (CRUD + `findByEmail`) e repositório fake |
+| 9 | `module-use-case` | 5 casos de uso CRUD com 100% de cobertura |
+| 10 | `backend-prisma-sync-module` | model `User` → tabela `users`, migration `auth` |
+| 11 | `backend-prisma-repository` | `PrismaUserRepository` |
+| 12 | `backend-provider-implementation` | `BcryptCryptoProvider` e `JwtTokenProvider` |
+| 13 | `backend-nest-config` | filtro global de erros, guard JWT global, `@Public()` e `@CurrentUser()` |
+| 14 | `backend-nest-controller` | rotas `/auth/me` e `/auth/users` + arquivo `.http` |
+| 15 | `spec-backend-auth-basic` | `RegisterUser`, `LoginUser` e as rotas `register` e `login` |
 
-Without global `turbo`:
+Testes ao final: **59** no domínio `auth` (100% de cobertura nos casos de uso), **27** no backend e **96** no shared. O fluxo completo também foi validado por HTTP contra o Postgres.
 
-```sh
-npx turbo link
-npm exec turbo link
-npm exec turbo link
-```
+## Correções feitas nas skills
 
-## Useful Links
+Ao executar as skills em um projeto novo, alguns problemas apareceram. Eles foram corrigidos nas próprias skills (ver os commits `fix(...)`):
 
-Learn more about the power of Turborepo:
+- **`config-project-fullstack`:**
+  - passou a usar o Nest CLI 11 via `npx`, porque o CLI global v12 gera vitest/oxlint e o install falhava dentro do workspace;
+  - o rewrite de namespace não altera mais os templates em `.agents/`.
+- **`config-prisma`:** passou a rodar `prisma generate` após `--install`, com nova flag `--generate`.
+- **`config-package-shared`:** o template não exportava `PageResult` em `db/index.ts`.
+- **`module-aggregate`:** os templates tinham `@poupig/shared` fixo; agora o scope é detectado do módulo e a dependência do shared é adicionada.
+- **`backend-prisma-repository`:** o caminho do `PrismaService` no exemplo estava errado.
+- **`backend-nest-controller`:** os few-shots tinham imports com caminhos inválidos.
+- **Várias skills:** o namespace `@poupig` estava fixo em comandos e exemplos e foi trocado pelo scope do projeto (`@app`).
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+## Fora do escopo / próximos passos
+
+- **Autorização:** hoje qualquer usuário autenticado pode editar ou excluir qualquer outro; falta limitar `PATCH`/`DELETE` ao próprio usuário ou a um perfil admin.
+- **Soft delete × e-mail único:** um usuário com `deletedAt` continua ocupando o e-mail; a solução seria um índice único parcial (`WHERE "deletedAt" IS NULL`).
+- **Não incluído nesta versão:** refresh token, recuperação de senha, confirmação de e-mail e as telas de autenticação no frontend.
