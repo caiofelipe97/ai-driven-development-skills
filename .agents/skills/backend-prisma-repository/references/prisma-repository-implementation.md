@@ -61,8 +61,8 @@ Exemplo de esqueleto:
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../db/prisma.service';
-import { User, UserPageParams, UserRepository } from '@poupig/auth';
+import { PrismaService } from '../../db/prisma.service';
+import { User, UserPageParams, UserRepository } from '@<scope>/auth'; // scope do workspace, ex.: @app/auth
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
