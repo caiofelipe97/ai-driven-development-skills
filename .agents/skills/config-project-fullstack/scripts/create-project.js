@@ -109,28 +109,14 @@ function main() {
         label: "Creating Next.js frontend",
       });
 
-      if (!commandExists("nest")) {
-        runCommand("npm", ["i", "-g", "@nestjs/cli"], {
-          cwd: tempRoot,
-          dryRun: options.dryRun,
-          label: "Installing Nest CLI globally",
-        });
-      } else {
-        log.step("Nest CLI already available globally");
-      }
-
-      runCommand("nest", ["new", "backend", "-g", "-p", "npm"], {
+      runCommand("npx", ["-y", "@nestjs/cli@11", "new", "backend", "-g", "-p", "npm", "--skip-install"], {
         cwd: appsDir,
         dryRun: options.dryRun,
-        label: "Creating NestJS backend",
+        label: "Creating NestJS backend (Nest CLI 11)",
       });
 
       const backendDir = path.join(scaffoldDir, "apps", "backend");
-      runCommand("npm", ["install", "@nestjs/config"], {
-        cwd: backendDir,
-        dryRun: options.dryRun,
-        label: "Installing backend config module",
-      });
+      ensureBackendDependency(path.join(backendDir, "package.json"), "@nestjs/config", "^4.0.3", options.dryRun);
 
       writeFile(path.join(backendDir, "src", "app.module.ts"), APP_MODULE_CONTENT, options.dryRun);
       writeFile(path.join(backendDir, "src", "main.ts"), MAIN_TS_CONTENT, options.dryRun);
@@ -273,6 +259,17 @@ function validateTargetDirectory(targetDir) {
   if (normalizedTarget === path.parse(normalizedTarget).root) {
     throw new Error("Refusing to use the filesystem root as the target directory");
   }
+}
+
+function ensureBackendDependency(packageJsonPath, name, version, dryRun) {
+  if (dryRun) {
+    console.log(`[dry-run] Adding ${name}@${version} to ${packageJsonPath}`);
+    return;
+  }
+
+  const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+  pkg.dependencies = { ...(pkg.dependencies || {}), [name]: version };
+  fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`);
 }
 
 function ensureCommand(command, args, cwd, dryRun) {
@@ -528,7 +525,7 @@ function walk(currentDir, visitor) {
 }
 
 function shouldSkipDirectory(name) {
-  return name === "node_modules" || name === ".git" || name === ".next" || name === "dist" || name === ".turbo";
+  return name === "node_modules" || name === ".agents" || name === ".claude" || name === ".git" || name === ".next" || name === "dist" || name === ".turbo";
 }
 
 function computeScopedPackageName(packageJsonPath, currentName, rootDir, namespace) {
