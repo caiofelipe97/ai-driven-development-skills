@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CryptoProvider } from '@poupig/auth';
+import { CryptoProvider } from '@app/auth'; // use o scope do workspace
 import { compare, hash } from 'bcrypt';
 
 const BCRYPT_SALT_ROUNDS = 12;

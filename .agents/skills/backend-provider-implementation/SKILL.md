@@ -133,10 +133,10 @@ Se alguma leitura obrigatoria falhar, pare e relate o bloqueio com clareza.
    - Permitir que controllers e servicos Nest passem a classe concreta para casos de uso que dependem da interface.
    - Nao alterar o contrato do dominio.
 9. Instalar dependencias externas quando necessario.
-   - Preferir instalar no workspace `@poupig/backend`.
+   - Preferir instalar no workspace do backend (nome lido de `apps/backend/package.json`, ex.: `@app/backend`).
    - Exemplos:
-     - `npm install --workspace @poupig/backend nodemailer`
-     - `npm install --workspace @poupig/backend jsonwebtoken`
+     - `npm install --workspace <workspace-do-backend> nodemailer`
+     - `npm install --workspace <workspace-do-backend> jsonwebtoken`
    - Adicionar `@types/*` quando a biblioteca exigir tipos separados.
 10. Testar e verificar.
    - Criar testes quando houver logica observavel relevante.
