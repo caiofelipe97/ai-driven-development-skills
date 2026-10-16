@@ -87,13 +87,19 @@ describe("RegisterUser", () => {
     expect(createSpy).not.toHaveBeenCalled();
   });
 
-  test("deve lidar com email ausente sem quebrar a normalizacao", async () => {
-    const useCase = new RegisterUser(new FakeCryptoProvider(), new FakeUserRepository());
+  test.each([undefined, 123, { email: "x" }])(
+    "deve tratar email nao-string %p como ausente, sem quebrar a busca",
+    async (email) => {
+      const userRepository = new FakeUserRepository();
+      const findSpy = jest.spyOn(userRepository, "findByEmail");
+      const useCase = new RegisterUser(new FakeCryptoProvider(), userRepository);
 
-    const error = await useCase
-      .execute({ ...input, email: undefined as unknown as string })
-      .catch((e) => e);
+      const error = await useCase
+        .execute({ ...input, email: email as unknown as string })
+        .catch((e) => e);
 
-    expect(getValidationMessages(error)).toEqual(["user.email.required"]);
-  });
+      expect(findSpy).toHaveBeenCalledWith("");
+      expect(getValidationMessages(error)).toEqual(["user.email.required"]);
+    },
+  );
 });

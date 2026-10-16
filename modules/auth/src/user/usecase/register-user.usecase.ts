@@ -61,5 +61,5 @@ export class RegisterUser
 }
 
 function normalizeEmail(email: string): string {
-  return typeof email === "string" ? email.trim().toLowerCase() : email;
+  return typeof email === "string" ? email.trim().toLowerCase() : "";
 }
