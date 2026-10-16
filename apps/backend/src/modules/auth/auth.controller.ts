@@ -9,17 +9,24 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
   DeleteUser,
   FindUserById,
   FindUserPage,
+  LoginUser,
+  RegisterUser,
   UpdateUser,
+  type LoginUserIn,
+  type RegisterUserIn,
   type User,
 } from '@app/auth';
 import { NotFoundError, type PageResult } from '@app/shared';
-import { CurrentUser } from '../../shared/decorators';
+import { CurrentUser, Public } from '../../shared/decorators';
+import { BcryptCryptoProvider } from './bcrypt.crypto';
+import { JwtTokenProvider } from './jwt.token';
 import { PrismaUserRepository } from './user.prisma';
 
 type UpdateUserHttpBody = {
@@ -38,11 +45,40 @@ type UserResponse = {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly userRepository: PrismaUserRepository) {}
+  constructor(
+    private readonly userRepository: PrismaUserRepository,
+    private readonly cryptoProvider: BcryptCryptoProvider,
+    private readonly tokenProvider: JwtTokenProvider,
+  ) {}
 
   @Get('/')
   getAuth() {
     return { message: 'Auth endpoint' };
+  }
+
+  @Public()
+  @Post('/register')
+  async register(@Body() body: RegisterUserIn): Promise<UserResponse> {
+    const useCase = new RegisterUser(this.cryptoProvider, this.userRepository);
+    const { user } = await useCase.execute({ ...body });
+
+    return toUserResponse(user);
+  }
+
+  @Public()
+  @Post('/login')
+  @HttpCode(HttpStatus.OK)
+  async login(
+    @Body() body: LoginUserIn,
+  ): Promise<{ accessToken: string; user: UserResponse }> {
+    const useCase = new LoginUser(
+      this.cryptoProvider,
+      this.tokenProvider,
+      this.userRepository,
+    );
+    const { accessToken, user } = await useCase.execute({ ...body });
+
+    return { accessToken, user: toUserResponse(user) };
   }
 
   @Get('/me')
@@ -71,6 +107,7 @@ export class AuthController {
     @Param('id') id: string,
     @Body() body: UpdateUserHttpBody,
   ): Promise<UserResponse> {
+    const { name, email } = body ?? {};
     const user = await new FindUserById(this.userRepository).execute({ id });
 
     if (!user) {
@@ -80,8 +117,8 @@ export class AuthController {
     const useCase = new UpdateUser(this.userRepository);
     const updated = await useCase.execute({
       entity: user.clone({
-        ...(body.name !== undefined && { name: body.name }),
-        ...(body.email !== undefined && { email: body.email }),
+        ...(name !== undefined && { name }),
+        ...(email !== undefined && { email }),
       }),
     });
 

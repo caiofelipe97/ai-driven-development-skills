@@ -1,13 +1,86 @@
 @baseUrl = http://localhost:4000
 @scenarioVersion = {{$timestamp}}
 
-# Token JWT do usuario autenticado.
-# O fluxo de register + login (passo 15, spec-backend-auth-basic) vai
-# preencher esta variavel a partir da resposta do login.
-@token =
+@email = maria.{{scenarioVersion}}@example.com
+@password = Strong@123
 
 ### Rota publica de health-check - esperado 200
 GET {{baseUrl}}/
+
+### Registrar usuario - esperado 201 sem o campo password
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Maria Silva",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+# O $timestamp e recalculado a cada request; os proximos usam o email
+# devolvido pelo registro para manter o mesmo usuario no fluxo.
+@registeredEmail = {{register.response.body.email}}
+
+### Registrar com o mesmo email - esperado 409 user.email.already.exists
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Maria Silva",
+  "email": "{{registeredEmail}}",
+  "password": "{{password}}"
+}
+
+### Registrar com senha fraca - esperado 422 user.password.strong.password
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Joao Souza",
+  "email": "joao.{{scenarioVersion}}@example.com",
+  "password": "fraca"
+}
+
+### Registrar com nome e email invalidos - esperado 422 com os dois erros em details
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Ana",
+  "email": "email-invalido",
+  "password": "{{password}}"
+}
+
+### Login com senha errada - esperado 401 auth.invalid.credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{registeredEmail}}",
+  "password": "Wrong@123"
+}
+
+### Login com email inexistente - esperado 401 auth.invalid.credentials
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "ninguem.{{scenarioVersion}}@example.com",
+  "password": "{{password}}"
+}
+
+### Login valido - esperado 200 com accessToken e user
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{registeredEmail}}",
+  "password": "{{password}}"
+}
+
+@token = {{login.response.body.accessToken}}
 
 ### Rota protegida sem token - esperado 401 auth.token.missing
 GET {{baseUrl}}/auth/me
